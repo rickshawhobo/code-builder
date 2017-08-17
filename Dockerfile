@@ -17,9 +17,9 @@ RUN apt-get update \
     openjdk-8-jdk \
     openjdk-8-jre \
     npm \
+    php7.0 \
     nodejs-legacy \
     software-properties-common \
-    php7.0 -y \
     && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - \
     && add-apt-repository \
     "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
@@ -32,9 +32,6 @@ RUN apt-get update \
     && chmod +x /usr/local/bin/docker-compose \
     && pip install --upgrade pip \
     && pip install --upgrade awscli \
-    && add-apt-repository ppa:ondrej/php \
-    && apt-get update \
-    && apt-get install -y curl git php7.0 php7.0-fpm php7.0-mysql \
     && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/ --filename=composer \
     && npm install -g gulp bower \
     && apt-get remove -y --purge python-software-properties software-properties-common \
