@@ -2,8 +2,6 @@ FROM ubuntu:16.04
 
 MAINTAINER rickshawhobo <rickshawhobo@gmail.com>
 
-ENV LC_ALL C.UTF-8
-
 RUN apt-get update \
     && apt-get install --yes \
     python-pip \
@@ -17,7 +15,6 @@ RUN apt-get update \
     openjdk-8-jdk \
     openjdk-8-jre \
     npm \
-    php7.0 \
     nodejs-legacy \
     software-properties-common \
     && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - \
@@ -32,10 +29,14 @@ RUN apt-get update \
     && chmod +x /usr/local/bin/docker-compose \
     && pip install --upgrade pip \
     && pip install --upgrade awscli \
-    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/ --filename=composer \
     && npm install -g gulp bower \
     && apt-get remove -y --purge python-software-properties software-properties-common \
     && apt-get --purge autoremove -y
+
+
+# Upgrade node and npm to latest version
+# solution for problem found here https://github.com/npm/npm/issues/9863
+RUN npm cache clean && npm install -g n && n stable && curl -L https://npmjs.org/install.sh | sh
 
 WORKDIR /ci
 
