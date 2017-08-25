@@ -37,6 +37,7 @@ RUN apt-get update \
     && apt-get remove -y --purge python-software-properties software-properties-common \
     && apt-get --purge autoremove -y
 
+WORKDIR /ci
 
 # Install the magic wrapper.
 ADD ./wrapdocker /usr/local/bin/wrapdocker
