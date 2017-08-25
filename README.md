@@ -2,10 +2,10 @@
 A portable container that contains build tools for building code on local environments without requiring tools on your local machine. Also useful as a docker base container for CI builds
 
 ## Languages
-PHP Java NodeJs
+Java NodeJs
 
 ## Tools
-Git, Vim, curl, jq, aws-cli, composer, docker, docker-compose, maven, npm, gulp, bower
+Git, Vim, curl, jq, aws-cli, docker, docker-compose, maven, npm, gulp, bower
 
 ## Examples
 ### maven example
