@@ -40,9 +40,14 @@ RUN npm cache clean && npm install -g n && n stable && curl -L https://npmjs.org
 
 WORKDIR /ci
 
-# Install the magic wrapper.
+# Install the magic wrapper for docker in docker
 ADD ./wrapdocker /usr/local/bin/wrapdocker
 RUN chmod +x /usr/local/bin/wrapdocker
+
+# Add extra deploy scripts
+ADD scripts/cf-deploy /usr/local/bin/cf-deploy
+ADD scripts/ecs-deploy /usr/local/bin/ecs-deploy
+RUN chmod +x /usr/local/bin/cf-deploy && chmod +x /usr/local/bin/ecs-deploy
 
 # Define additional metadata for our image.
 VOLUME /var/lib/docker

@@ -1,0 +1,97 @@
+#!/usr/bin/env bash
+
+JQ="jq --raw-output --exit-status"
+
+if ! type "jq" > /dev/null; then
+    echo "Dependent command jq is not installed. Please install jq."
+    exit 1
+
+fi
+
+
+usage() {
+
+echo "
+USAGE: ecs-deploy [OPTIONS]
+
+    OPTIONS
+        -c [cluster]        The ecs cluster
+        -s [service]        The service to update
+        -t [task]           The task definition
+        -i [image]          The ECR image
+        -e [account id]     The Account id for ECR
+    "
+}
+
+
+updateTaskDefinition() {
+
+    LATEST_TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition ${1})
+    TEMP_FILE="/tmp/${1}-tmp.json"
+
+
+    echo ${LATEST_TASK_DEFINITION} \
+         | jq '{containerDefinitions: .taskDefinition.containerDefinitions, volumes: .taskDefinition.volumes}' \
+         | jq '.containerDefinitions[0].image='\"${2}\" \
+         > ${TEMP_FILE}
+
+    if NEW_TD_REVISION=$(aws ecs register-task-definition --family ${1} --cli-input-json file://${TEMP_FILE} | ${JQ} '.taskDefinition.taskDefinitionArn'); then
+        echo "Revision: $NEW_TD_REVISION"
+    else
+        echo "Failed to register $1 task definition"
+        exit 1
+    fi
+
+}
+
+updateClusterService() {
+
+    if [[ $(aws ecs update-service --cluster ${1} --service ${2} --task-definition ${NEW_TD_REVISION} | \
+            $JQ '.service.taskDefinition') != ${NEW_TD_REVISION} ]]; then
+        echo "Error updating service."
+        exit 1
+    fi
+
+    echo "### Deployed to ${1} !"
+}
+
+
+
+if [ "$1" == "" ]; then
+usage
+exit 0
+fi
+
+while getopts ":h:t:s:c:i:e:" opts; do
+case $opts in
+    h)
+        usage
+        exit 0
+        ;;
+    t)
+        task=$OPTARG
+        ;;
+    s)
+        service=$OPTARG
+        ;;
+    c)
+        cluster=$OPTARG
+        ;;
+    i)
+        image=$OPTARG
+        ;;
+    e)
+        account_id=$OPTARG
+        ;;
+    \? | :)
+        usage
+        exit 1
+        ;;
+  esac
+done
+
+ECR_TAG=${account_id}.dkr.ecr.us-east-1.amazonaws.com/${image}
+
+updateTaskDefinition ${task} ${ECR_TAG}
+updateClusterService ${cluster} ${service}
+
