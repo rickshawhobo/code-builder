@@ -11,3 +11,6 @@ Git, Vim, curl, jq, aws-cli, docker, docker-compose, maven, npm, gulp, bower
 ### maven example
 `docker run --rm -it -v $(pwd):/code  -v $HOME/.m2:/root/.m2 -w /code rickshawhobo/code-builder mvn clean compile assembly:single`
 
+### docker in docker example
+`docker run --rm -it -v $(pwd):/code  -v /var/run/docker.sock:/var/run/docker.sock2 -w /code rickshawhobo/code-builder docker build -t tag .`
+
